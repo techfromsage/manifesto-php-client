@@ -54,6 +54,10 @@ class Manifest
         $this->fileCount = $fileCount;
     }
 
+    /**
+     * @return array
+     * @throws Exceptions\ManifestValidationException
+     */
     public function generateManifest()
     {
         if(empty($this->files))
@@ -81,6 +85,23 @@ class Manifest
         }
 
         $manifest = array();
+        if(isset($this->callbackLocation))
+        {
+            $manifest['callback'] = array('url'=>$this->callbackLocation, 'method'=>$this->callbackMethod);
+        }
+
+        if(isset($this->customData))
+        {
+            $manifest['customData'] = $this->customData;
+        }
+
+        $manifest['format'] = $this->format;
+
+        $manifest['fileCount'] = $this->fileCount;
+
+        $manifest['files'] = $this->files;
+
+        return $manifest;
     }
 
     /**
