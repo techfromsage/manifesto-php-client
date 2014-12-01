@@ -142,9 +142,9 @@ class Manifest
      */
     public function addFile(array $file)
     {
-        if(!array_key_exists('filename', $file) || empty($file['filename']))
+        if(!array_key_exists('file', $file) || empty($file['file']))
         {
-            throw new \InvalidArgumentException("Files must contain a filename key and value");
+            throw new \InvalidArgumentException("Files must contain a file key and value");
         }
 
         if(array_key_exists('type', $file) && !in_array($file['type'], array(FILE_TYPE_S3, FILE_TYPE_S3)))

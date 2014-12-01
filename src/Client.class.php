@@ -109,7 +109,13 @@ class Client {
 
             $request = $client->post($archiveLocation, $this->getHeaders($clientId, $clientSecret), $manifestDocument);
 
-            return $request->send();
+            $response = $request->send();
+
+            switch($response->getStatusCode())
+            {
+                case 202:
+
+            }
 
 //        }
 //        catch(\Exception $e)
