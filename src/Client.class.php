@@ -103,11 +103,13 @@ class Client {
     {
         $archiveLocation = $this->manifestoBaseUrl . '/1/archives';
         $manifestDocument = json_encode($manifest->generateManifest());
+
 //        try
 //        {
             $client = $this->getHTTPClient();
-
-            $request = $client->post($archiveLocation, $this->getHeaders($clientId, $clientSecret), $manifestDocument);
+            $headers = $this->getHeaders($clientId, $clientSecret);
+            $headers['Content-Type'] = 'application/x-www-form-urlencoded';
+            $request = $client->post($archiveLocation, $headers, $manifestDocument);
 
             $response = $request->send();
 

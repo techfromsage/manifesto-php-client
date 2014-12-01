@@ -90,7 +90,7 @@ class Manifest
             $manifest['callback'] = array('url'=>$this->callbackLocation, 'method'=>$this->callbackMethod);
         }
 
-        if(isset($this->customData))
+        if(isset($this->customData) && !empty($this->customData))
         {
             $manifest['customData'] = $this->customData;
         }
