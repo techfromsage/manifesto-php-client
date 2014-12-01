@@ -1,8 +1,8 @@
 <?php
 
-
 namespace Manifesto;
 
+require_once dirname(__FILE__) . '/common.inc.php';
 
 class Manifest
 {
@@ -163,7 +163,7 @@ class Manifest
     }
 
     /**
-     * @param mixed $format
+     * @param string $format
      * @throws \InvalidArgumentException
      */
     public function setFormat($format)

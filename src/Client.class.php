@@ -2,7 +2,10 @@
 
 namespace Manifesto;
 
+require_once dirname(__FILE__) . '/common.inc.php';
+
 class Client {
+
     protected $clientId;
     protected $clientSecret;
 
@@ -100,17 +103,19 @@ class Client {
     {
         $archiveLocation = $this->manifestoBaseUrl . '/1/archives';
         $manifestDocument = json_encode($manifest->generateManifest());
-        try
-        {
+//        try
+//        {
             $client = $this->getHTTPClient();
 
-            $response = $client->post($archiveLocation, $this->getHeaders($clientId, $clientSecret), $manifestDocument);
+            $request = $client->post($archiveLocation, $this->getHeaders($clientId, $clientSecret), $manifestDocument);
 
-        }
-        catch(\Exception $e)
-        {
+            return $request->send();
 
-        }
+//        }
+//        catch(\Exception $e)
+//        {
+//
+//        }
     }
 
     /**
