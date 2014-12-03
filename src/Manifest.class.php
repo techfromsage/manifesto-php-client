@@ -70,7 +70,7 @@ class Manifest
             throw new \Manifesto\Exceptions\ManifestValidationException("Output format has not been set");
         }
 
-        if($this->safeMode && !isset($this->fileCount))
+        if($this->safeMode && (!isset($this->fileCount) || empty($this->fileCount)))
         {
             throw new \Manifesto\Exceptions\ManifestValidationException("File count must be set in safe mode");
         }
@@ -147,7 +147,7 @@ class Manifest
             throw new \InvalidArgumentException("Files must contain a file key and value");
         }
 
-        if(array_key_exists('type', $file) && !in_array($file['type'], array(FILE_TYPE_S3, FILE_TYPE_S3)))
+        if(array_key_exists('type', $file) && !in_array($file['type'], array(FILE_TYPE_S3, FILE_TYPE_CF)))
         {
             throw new \InvalidArgumentException("Unsupported file 'type'");
         }
