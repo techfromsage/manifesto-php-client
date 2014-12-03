@@ -108,16 +108,16 @@ class Client {
 //        {
             $client = $this->getHTTPClient();
             $headers = $this->getHeaders($clientId, $clientSecret);
-            $headers['Content-Type'] = 'application/x-www-form-urlencoded';
+            $headers['Content-Type'] = 'application/json';
             $request = $client->post($archiveLocation, $headers, $manifestDocument);
 
             $response = $request->send();
-
-            switch($response->getStatusCode())
-            {
-                case 202:
-
-            }
+return $response;
+//            switch($response->getStatusCode())
+//            {
+//                case 202:
+//
+//            }
 
 //        }
 //        catch(\Exception $e)
