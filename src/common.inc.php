@@ -5,6 +5,7 @@ namespace Manifesto;
 require_once dirname(dirname(__FILE__)) . '/vendor/autoload.php';
 require_once dirname(__FILE__) . '/Client.class.php';
 require_once dirname(__FILE__) . '/Manifest.class.php';
+require_once dirname(__FILE__) . '/Archive.class.php';
 require_once dirname(__FILE__) . '/exceptions/ManifestValidationException.class.php';
 
 define('FORMAT_ZIP', 'zip');
