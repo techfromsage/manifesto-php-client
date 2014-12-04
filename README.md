@@ -52,7 +52,7 @@ $client = new \Manifesto\Client($manifestBaseUrl, $personaOptions);
 
 try
 {
-    $archive = $client->requestArchive($manifest);
+    $archive = $client->requestArchive($manifest, "client id", "client secret");
 
     $archive->getId();
 
