@@ -9,6 +9,11 @@ class Archive {
     /**
      * @var string
      */
+    protected $id;
+
+    /**
+     * @var string
+     */
     protected $status;
 
     /**
@@ -23,6 +28,10 @@ class Archive {
 
     public function loadFromArray(array $array)
     {
+        if(isset($array['id']))
+        {
+            $this->id = $array['id'];
+        }
         if(isset($array['status']))
         {
             $this->status = $array['status'];
@@ -48,6 +57,14 @@ class Archive {
     public function getLocation()
     {
         return $this->location;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 
 }
