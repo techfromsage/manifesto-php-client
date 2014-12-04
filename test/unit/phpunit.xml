@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<phpunit bootstrap="../../vendor/autoload.php">
+    <filter>
+        <whitelist addUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">../../src</directory>
+        </whitelist>
+    </filter>
+    <testsuites>
+        <testsuite name="Manifesto client unit tests">
+            <directory>.</directory>
+        </testsuite>
+    </testsuites>
+
+</phpunit>

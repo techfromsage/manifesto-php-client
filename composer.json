@@ -24,11 +24,11 @@
         "talis/persona-php-client": "0.2.6"
     },
     "require-dev" : {
-        "phpunit/phpunit": ">=3.7.0@stable"
+        "phpunit/phpunit": "4.3.x"
     },
     "autoload":{
-        "psr-4": {
-            "Manifesto\\": "src/"
+        "psr-0": {
+            "Manifesto": "src"
         }
     }
 }

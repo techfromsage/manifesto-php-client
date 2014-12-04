@@ -63,6 +63,7 @@ class Client {
     }
 
     /**
+     * For mocking
      * @return \personaclient\PersonaClient
      */
     protected function getPersonaClient()
@@ -75,6 +76,7 @@ class Client {
     }
 
     /**
+     * Allows PersonaClient override, if PersonaClient has been initialized elsewhere
      * @param \personaclient\PersonaClient $personaClient
      */
     public function setPersonaClient(\personaclient\PersonaClient $personaClient)
@@ -83,6 +85,7 @@ class Client {
     }
 
     /**
+     * For mocking
      * @return \Guzzle\Http\Client
      */
     protected function getHTTPClient()
@@ -95,40 +98,68 @@ class Client {
     }
 
     /**
+     * Create an archive generation job request
+     *
      * @param Manifest $manifest
      * @param string $clientId
      * @param string $clientSecret
+     * @throws \Exception|\Guzzle\Http\Exception\ClientErrorResponseException
+     * @throws Exceptions\ManifestValidationException
+     * @throws Exceptions\UnauthorisedAccessException
+     * @throws Exceptions\ArchiveException
+     * @return \Manifesto\Archive
      */
     public function requestArchive(Manifest $manifest, $clientId, $clientSecret)
     {
         $archiveLocation = $this->manifestoBaseUrl . '/1/archives';
         $manifestDocument = json_encode($manifest->generateManifest());
 
-//        try
-//        {
+        try
+        {
             $client = $this->getHTTPClient();
             $headers = $this->getHeaders($clientId, $clientSecret);
-            $headers['Content-Type'] = 'application/json';
+
             $request = $client->post($archiveLocation, $headers, $manifestDocument);
 
             $response = $request->send();
-return $response;
-//            switch($response->getStatusCode())
-//            {
-//                case 202:
-//
-//            }
 
-//        }
-//        catch(\Exception $e)
-//        {
-//
-//        }
+            if($response->getStatusCode() == 202)
+            {
+                $archive = new \Manifesto\Archive();
+                $archive->loadFromJson($response->getBody(true));
+                return $archive;
+            }
+            else
+            {
+                throw new \Manifesto\Exceptions\ArchiveException($response->getStatusCode(), $response->getBody(true));
+            }
+        }
+        /** @var \Guzzle\Http\Exception\ClientErrorResponseException $e */
+        catch(\Guzzle\Http\Exception\ClientErrorResponseException $e)
+        {
+            $response = $e->getResponse();
+            $error = $this->processErrorResponseBody($response->getBody(true));
+            switch($response->getStatusCode())
+            {
+                case 400:
+                    throw new \Manifesto\Exceptions\ManifestValidationException($error['message'], $error['error_code'], $e);
+                case 403:
+                case 401:
+                    throw new \Manifesto\Exceptions\UnauthorisedAccessException($error['message'], $error['error_code'], $e);
+                    break;
+                case 404:
+                    throw new \Manifesto\Exceptions\ArchiveException('Misconfigured Manifesto base url', 404);
+                    break;
+                default:
+                    throw $e;
+            }
+        }
+
     }
 
     /**
      * Setup the header array for any request to Manifesto
-     * @param string clientId
+     * @param string $clientId
      * @param string $clientSecret
      * @return array
      */
@@ -141,5 +172,24 @@ return $response;
             'Authorization'=>'Bearer '.$personaToken
         );
         return $headers;
+    }
+
+    protected function processErrorResponseBody($responseBody)
+    {
+
+        $error = array('error_code'=>null, 'message'=>null);
+        $response = json_decode($responseBody, true);
+
+        if(isset($response['error_code']))
+        {
+            $error['error_code'] = $response['error_code'];
+        }
+
+        if(isset($response['message']))
+        {
+            $error['message'] = $response['message'];
+        }
+
+        return $error;
     }
 }

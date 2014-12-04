@@ -12,7 +12,6 @@ class Manifest
     protected $fileCount;
     protected $files = array();
     protected $format;
-    protected $customData = array();
     protected $safeMode = false;
 
     protected $validFormats = array(FORMAT_ZIP, FORMAT_TARGZ, FORMAT_TARBZ);
@@ -90,11 +89,6 @@ class Manifest
             $manifest['callback'] = array('url'=>$this->callbackLocation, 'method'=>$this->callbackMethod);
         }
 
-        if(isset($this->customData) && !empty($this->customData))
-        {
-            $manifest['customData'] = $this->customData;
-        }
-
         $manifest['format'] = $this->format;
 
         $manifest['fileCount'] = $this->fileCount;
@@ -102,30 +96,6 @@ class Manifest
         $manifest['files'] = $this->files;
 
         return $manifest;
-    }
-
-    /**
-     * @return array
-     */
-    public function getCustomData()
-    {
-        return $this->customData;
-    }
-
-    /**
-     * @param array $customData
-     * @throws \InvalidArgumentException
-     */
-    public function setCustomData(array $customData)
-    {
-        foreach($customData as $key=>$val)
-        {
-            if(!is_scalar($val))
-            {
-                throw new \InvalidArgumentException("Values of custom data must be a string, numeric, or boolean");
-            }
-        }
-        $this->customData = $customData;
     }
 
     /**

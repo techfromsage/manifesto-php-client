@@ -21,21 +21,6 @@ class ManifestTest extends TestBase {
         $this->assertEquals(12, $m->getFileCount());
     }
 
-    public function testGetSetCustomData()
-    {
-        $m = new \Manifesto\Manifest();
-        $customData = array('email'=>'user@example.com','foo'=>3, 'bar'=>true);
-        $m->setCustomData($customData);
-        $this->assertEquals($customData, $m->getCustomData());
-    }
-
-    public function testValidateCustomData()
-    {
-        $this->setExpectedException('InvalidArgumentException', 'Values of custom data must be a string, numeric, or boolean');
-        $m = new \Manifesto\Manifest();
-        $m->setCustomData(array('foo'=>array('bar')));
-    }
-
     public function testGetSetFormat()
     {
         $m = new \Manifesto\Manifest();
@@ -203,17 +188,8 @@ class ManifestTest extends TestBase {
         $m->setCallbackLocation('https://example.com/callback.cgi');
         $m->setCallbackMethod('post');
 
-        $customData = array(
-            'email'=>'user@example.com',
-            'foo'=>'bar',
-            'baz'=>true
-        );
-
-        $m->setCustomData($customData);
-
         $expectedManifest = array(
             'callback'=>array('url'=>'https://example.com/callback.cgi', 'method'=>'POST'),
-            'customData'=>$customData,
             'format'=>FORMAT_TARBZ,
             'fileCount'=>3,
             'files'=>$files

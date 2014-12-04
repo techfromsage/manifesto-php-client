@@ -53,6 +53,401 @@ class ClientTest extends TestBase
 
         $this->assertEquals($persona, $client->getPersonaClient());
     }
+
+    public function testSuccessfulRequestArchive()
+    {
+        /** @var \Manifesto\Client|PHPUnit_Framework_MockObject_MockObject $mockClient */
+        $mockClient = $this->getMock(
+            '\Manifesto\Client',
+            array('getHeaders', 'getHTTPClient'),
+            array('https://example.com/manifesto')
+        );
+
+        $mockClient->expects($this->once())
+            ->method('getHeaders')
+            ->will(
+                $this->returnValue(array(
+                    array(
+                        'Content-Type'=>'application/json',
+                        'Authorization'=>'Bearer FooToken'
+                    )
+                ))
+            );
+
+        $client = new \Guzzle\Http\Client('https://example.com/manifesto');
+        $plugin = new \Guzzle\Plugin\Mock\MockPlugin();
+        $plugin->addResponse(
+            new \Guzzle\Http\Message\Response(
+                202,
+                null,
+                json_encode(array('id'=>"12345", "status"=>"Accepted"))
+                ));
+        $client->addSubscriber($plugin);
+
+        $mockClient->expects($this->once())
+            ->method('getHTTPClient')
+            ->will($this->returnValue($client));
+
+        // Set this manually since it won't work from the constructor since we're mocking
+        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
+
+        $personaOpts = array(
+            'persona_host' => 'http://persona',
+            'persona_oauth_route' => '/oauth/tokens',
+            'tokencache_redis_host' => 'localhost',
+            'tokencache_redis_port' => 6379,
+            'tokencache_redis_db' => 2,
+        );
+        $mockClient->setPersonaConnectValues($personaOpts);
+
+        $m = new \Manifesto\Manifest();
+        $m->setFormat(FORMAT_ZIP);
+        $files = array();
+        $file1 = array('file'=>'/path/to/file1.txt');
+        $files[] = $file1;
+        $m->addFile($file1);
+
+        $file2 = array('type'=>FILE_TYPE_S3, 'container'=>'myBucket', 'file'=>'/path/to/file2.txt', 'destinationPath'=>'foobar.txt');
+        $files[] = $file2;
+        $m->addFile($file2);
+
+        $file3 = array('type'=>FILE_TYPE_CF, 'file'=>'/path/to/file3.txt', 'destinationPath'=>'/another/path/foobar.txt');
+        $files[] = $file3;
+        $m->addFile($file3);
+
+        /** @var \Manifesto\Archive $response */
+        $response = $mockClient->requestArchive($m, 'token', 'secret');
+
+        $this->assertInstanceOf('\Manifesto\Archive', $response);
+        $this->assertEquals('12345', $response->getId());
+        $this->assertEquals('Accepted', $response->getStatus());
+        $this->assertEmpty($response->getLocation());
+    }
+
+    public function testRequestArchiveNotAuthorisedResponse()
+    {
+        /** @var \Manifesto\Client|PHPUnit_Framework_MockObject_MockObject $mockClient */
+        $mockClient = $this->getMock(
+            '\Manifesto\Client',
+            array('getHeaders', 'getHTTPClient'),
+            array('https://example.com/manifesto')
+        );
+
+        $mockClient->expects($this->once())
+            ->method('getHeaders')
+            ->will(
+                $this->returnValue(array(
+                    array(
+                        'Content-Type'=>'application/json',
+                        'Authorization'=>'Bearer FooToken'
+                    )
+                ))
+            );
+
+        $client = new \Guzzle\Http\Client('https://example.com/manifesto');
+        $plugin = new \Guzzle\Plugin\Mock\MockPlugin();
+        $plugin->addResponse(
+            new \Guzzle\Http\Message\Response(
+                401,
+                null,
+                json_encode(array('code'=>'Unauthorised request', 'message'=>'Client is not authorised for request'))
+            ));
+        $client->addSubscriber($plugin);
+
+        $mockClient->expects($this->once())
+            ->method('getHTTPClient')
+            ->will($this->returnValue($client));
+
+        // Set this manually since it won't work from the constructor since we're mocking
+        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
+
+        $personaOpts = array(
+            'persona_host' => 'http://persona',
+            'persona_oauth_route' => '/oauth/tokens',
+            'tokencache_redis_host' => 'localhost',
+            'tokencache_redis_port' => 6379,
+            'tokencache_redis_db' => 2,
+        );
+        $mockClient->setPersonaConnectValues($personaOpts);
+
+        $m = new \Manifesto\Manifest();
+        $m->setFormat(FORMAT_ZIP);
+        $files = array();
+        $file1 = array('file'=>'/path/to/file1.txt');
+        $files[] = $file1;
+        $m->addFile($file1);
+
+        $file2 = array('type'=>FILE_TYPE_S3, 'container'=>'myBucket', 'file'=>'/path/to/file2.txt', 'destinationPath'=>'foobar.txt');
+        $files[] = $file2;
+        $m->addFile($file2);
+
+        $file3 = array('type'=>FILE_TYPE_CF, 'file'=>'/path/to/file3.txt', 'destinationPath'=>'/another/path/foobar.txt');
+        $files[] = $file3;
+        $m->addFile($file3);
+
+        $this->setExpectedException('\Manifesto\Exceptions\UnauthorisedAccessException', 'Client is not authorised for request');
+        $response = $mockClient->requestArchive($m, 'token', 'secret');
+    }
+
+    public function testRequestArchiveInvalidManifestResponse()
+    {
+        /** @var \Manifesto\Client|PHPUnit_Framework_MockObject_MockObject $mockClient */
+        $mockClient = $this->getMock(
+            '\Manifesto\Client',
+            array('getHeaders', 'getHTTPClient'),
+            array('https://example.com/manifesto')
+        );
+
+        $mockClient->expects($this->once())
+            ->method('getHeaders')
+            ->will(
+                $this->returnValue(array(
+                    array(
+                        'Content-Type'=>'application/json',
+                        'Authorization'=>'Bearer FooToken'
+                    )
+                ))
+            );
+
+        $client = new \Guzzle\Http\Client('https://example.com/manifesto');
+        $plugin = new \Guzzle\Plugin\Mock\MockPlugin();
+        $plugin->addResponse(
+            new \Guzzle\Http\Message\Response(
+                400,
+                null,
+                json_encode(array('code'=>'Invalid Manifest', 'message'=>'The Manifest is incomplete or contains invalid properties'))
+            ));
+        $client->addSubscriber($plugin);
+
+        $mockClient->expects($this->once())
+            ->method('getHTTPClient')
+            ->will($this->returnValue($client));
+
+        // Set this manually since it won't work from the constructor since we're mocking
+        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
+
+        $personaOpts = array(
+            'persona_host' => 'http://persona',
+            'persona_oauth_route' => '/oauth/tokens',
+            'tokencache_redis_host' => 'localhost',
+            'tokencache_redis_port' => 6379,
+            'tokencache_redis_db' => 2,
+        );
+        $mockClient->setPersonaConnectValues($personaOpts);
+
+        $m = new \Manifesto\Manifest();
+        $m->setFormat(FORMAT_ZIP);
+        $files = array();
+        $file1 = array('file'=>'/path/to/file1.txt');
+        $files[] = $file1;
+        $m->addFile($file1);
+
+        $file2 = array('type'=>FILE_TYPE_S3, 'container'=>'myBucket', 'file'=>'/path/to/file2.txt', 'destinationPath'=>'foobar.txt');
+        $files[] = $file2;
+        $m->addFile($file2);
+
+        $file3 = array('type'=>FILE_TYPE_CF, 'file'=>'/path/to/file3.txt', 'destinationPath'=>'/another/path/foobar.txt');
+        $files[] = $file3;
+        $m->addFile($file3);
+
+        $this->setExpectedException('\Manifesto\Exceptions\ManifestValidationException', 'The Manifest is incomplete or contains invalid properties');
+        $response = $mockClient->requestArchive($m, 'token', 'secret');
+    }
+
+    public function testRequestArchiveReturns404()
+    {
+        /** @var \Manifesto\Client|PHPUnit_Framework_MockObject_MockObject $mockClient */
+        $mockClient = $this->getMock(
+            '\Manifesto\Client',
+            array('getHeaders', 'getHTTPClient'),
+            array('https://example.com/manifesto')
+        );
+
+        $mockClient->expects($this->once())
+            ->method('getHeaders')
+            ->will(
+                $this->returnValue(array(
+                    array(
+                        'Content-Type'=>'application/json',
+                        'Authorization'=>'Bearer FooToken'
+                    )
+                ))
+            );
+
+        $client = new \Guzzle\Http\Client('https://example.com/manifesto');
+        $plugin = new \Guzzle\Plugin\Mock\MockPlugin();
+        $plugin->addResponse(
+            new \Guzzle\Http\Message\Response(
+                404,
+                null,
+                "File not found"
+            ));
+        $client->addSubscriber($plugin);
+
+        $mockClient->expects($this->once())
+            ->method('getHTTPClient')
+            ->will($this->returnValue($client));
+
+        // Set this manually since it won't work from the constructor since we're mocking
+        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
+
+        $personaOpts = array(
+            'persona_host' => 'http://persona',
+            'persona_oauth_route' => '/oauth/tokens',
+            'tokencache_redis_host' => 'localhost',
+            'tokencache_redis_port' => 6379,
+            'tokencache_redis_db' => 2,
+        );
+        $mockClient->setPersonaConnectValues($personaOpts);
+
+        $m = new \Manifesto\Manifest();
+        $m->setFormat(FORMAT_ZIP);
+        $files = array();
+        $file1 = array('file'=>'/path/to/file1.txt');
+        $files[] = $file1;
+        $m->addFile($file1);
+
+        $file2 = array('type'=>FILE_TYPE_S3, 'container'=>'myBucket', 'file'=>'/path/to/file2.txt', 'destinationPath'=>'foobar.txt');
+        $files[] = $file2;
+        $m->addFile($file2);
+
+        $file3 = array('type'=>FILE_TYPE_CF, 'file'=>'/path/to/file3.txt', 'destinationPath'=>'/another/path/foobar.txt');
+        $files[] = $file3;
+        $m->addFile($file3);
+
+        $this->setExpectedException('\Manifesto\Exceptions\ArchiveException', 'Misconfigured Manifesto base url');
+        $response = $mockClient->requestArchive($m, 'token', 'secret');
+    }
+
+    public function testRequestArchiveUnexpectedClientErrorResponse()
+    {
+        /** @var \Manifesto\Client|PHPUnit_Framework_MockObject_MockObject $mockClient */
+        $mockClient = $this->getMock(
+            '\Manifesto\Client',
+            array('getHeaders', 'getHTTPClient'),
+            array('https://example.com/manifesto')
+        );
+
+        $mockClient->expects($this->once())
+            ->method('getHeaders')
+            ->will(
+                $this->returnValue(array(
+                    array(
+                        'Content-Type'=>'application/json',
+                        'Authorization'=>'Bearer FooToken'
+                    )
+                ))
+            );
+
+        $client = new \Guzzle\Http\Client('https://example.com/manifesto');
+        $plugin = new \Guzzle\Plugin\Mock\MockPlugin();
+        $plugin->addResponse(
+            new \Guzzle\Http\Message\Response(
+                420,
+                null,
+                "Enhance Your Calm"
+            ));
+        $client->addSubscriber($plugin);
+
+        $mockClient->expects($this->once())
+            ->method('getHTTPClient')
+            ->will($this->returnValue($client));
+
+        // Set this manually since it won't work from the constructor since we're mocking
+        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
+
+        $personaOpts = array(
+            'persona_host' => 'http://persona',
+            'persona_oauth_route' => '/oauth/tokens',
+            'tokencache_redis_host' => 'localhost',
+            'tokencache_redis_port' => 6379,
+            'tokencache_redis_db' => 2,
+        );
+        $mockClient->setPersonaConnectValues($personaOpts);
+
+        $m = new \Manifesto\Manifest();
+        $m->setFormat(FORMAT_ZIP);
+        $files = array();
+        $file1 = array('file'=>'/path/to/file1.txt');
+        $files[] = $file1;
+        $m->addFile($file1);
+
+        $file2 = array('type'=>FILE_TYPE_S3, 'container'=>'myBucket', 'file'=>'/path/to/file2.txt', 'destinationPath'=>'foobar.txt');
+        $files[] = $file2;
+        $m->addFile($file2);
+
+        $file3 = array('type'=>FILE_TYPE_CF, 'file'=>'/path/to/file3.txt', 'destinationPath'=>'/another/path/foobar.txt');
+        $files[] = $file3;
+        $m->addFile($file3);
+
+        $this->setExpectedException('\Guzzle\Http\Exception\ClientErrorResponseException');
+        $response = $mockClient->requestArchive($m, 'token', 'secret');
+    }
+
+    public function testRequestArchiveUnexpectedServerErrorResponse()
+    {
+        /** @var \Manifesto\Client|PHPUnit_Framework_MockObject_MockObject $mockClient */
+        $mockClient = $this->getMock(
+            '\Manifesto\Client',
+            array('getHeaders', 'getHTTPClient'),
+            array('https://example.com/manifesto')
+        );
+
+        $mockClient->expects($this->once())
+            ->method('getHeaders')
+            ->will(
+                $this->returnValue(array(
+                    array(
+                        'Content-Type'=>'application/json',
+                        'Authorization'=>'Bearer FooToken'
+                    )
+                ))
+            );
+
+        $client = new \Guzzle\Http\Client('https://example.com/manifesto');
+        $plugin = new \Guzzle\Plugin\Mock\MockPlugin();
+        $plugin->addResponse(
+            new \Guzzle\Http\Message\Response(
+                500,
+                null,
+                "Server error"
+            ));
+        $client->addSubscriber($plugin);
+
+        $mockClient->expects($this->once())
+            ->method('getHTTPClient')
+            ->will($this->returnValue($client));
+
+        // Set this manually since it won't work from the constructor since we're mocking
+        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
+
+        $personaOpts = array(
+            'persona_host' => 'http://persona',
+            'persona_oauth_route' => '/oauth/tokens',
+            'tokencache_redis_host' => 'localhost',
+            'tokencache_redis_port' => 6379,
+            'tokencache_redis_db' => 2,
+        );
+        $mockClient->setPersonaConnectValues($personaOpts);
+
+        $m = new \Manifesto\Manifest();
+        $m->setFormat(FORMAT_ZIP);
+        $files = array();
+        $file1 = array('file'=>'/path/to/file1.txt');
+        $files[] = $file1;
+        $m->addFile($file1);
+
+        $file2 = array('type'=>FILE_TYPE_S3, 'container'=>'myBucket', 'file'=>'/path/to/file2.txt', 'destinationPath'=>'foobar.txt');
+        $files[] = $file2;
+        $m->addFile($file2);
+
+        $file3 = array('type'=>FILE_TYPE_CF, 'file'=>'/path/to/file3.txt', 'destinationPath'=>'/another/path/foobar.txt');
+        $files[] = $file3;
+        $m->addFile($file3);
+
+        $this->setExpectedException('\Guzzle\Http\Exception\ServerErrorResponseException');
+        $response = $mockClient->requestArchive($m, 'token', 'secret');
+    }
 }
 
 class TestManifestoClient extends \Manifesto\Client
