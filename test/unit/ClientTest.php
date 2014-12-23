@@ -126,6 +126,7 @@ class ClientTest extends TestBase
 
     public function testGenerateUrlNotAuthorisedResponse()
     {
+        /** @var \Manifesto\Client|PHPUnit_Framework_MockObject_MockObject $mockClient */
         $mockClient = $this->getMock(
             '\Manifesto\Client',
             array('getHeaders', 'getHTTPClient'),
