@@ -159,9 +159,6 @@ class ClientTest extends TestBase
             ->method('getHTTPClient')
             ->will($this->returnValue($client));
 
-        // Set this manually since it won't work from the constructor since we're mocking
-        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
-
         $personaOpts = array(
             'persona_host' => 'http://persona',
             'persona_oauth_route' => '/oauth/tokens',
@@ -209,9 +206,6 @@ class ClientTest extends TestBase
             ->method('getHTTPClient')
             ->will($this->returnValue($client));
 
-        // Set this manually since it won't work from the constructor since we're mocking
-        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
-
         $personaOpts = array(
             'persona_host' => 'http://persona',
             'persona_oauth_route' => '/oauth/tokens',
@@ -258,9 +252,6 @@ class ClientTest extends TestBase
         $mockClient->expects($this->once())
             ->method('getHTTPClient')
             ->will($this->returnValue($client));
-
-        // Set this manually since it won't work from the constructor since we're mocking
-        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
 
         $personaOpts = array(
             'persona_host' => 'http://persona',
