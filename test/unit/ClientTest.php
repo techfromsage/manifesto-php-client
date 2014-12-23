@@ -124,6 +124,155 @@ class ClientTest extends TestBase
         $this->assertEmpty($response->getLocation());
     }
 
+    public function testGenerateUrlNotAuthorisedResponse()
+    {
+        $mockClient = $this->getMock(
+            '\Manifesto\Client',
+            array('getHeaders', 'getHTTPClient'),
+            array('https://example.com/manifesto')
+        );
+
+        $mockClient->expects($this->once())
+            ->method('getHeaders')
+            ->will(
+                $this->returnValue(array(
+                    array(
+                        'Content-Type' => 'application/json',
+                        'Authorization' => 'Bearer FooToken'
+                    )
+                ))
+            );
+
+        $client = new \Guzzle\Http\Client('https://example.com/manifesto');
+        $plugin = new \Guzzle\Plugin\Mock\MockPlugin();
+        $plugin->addResponse(
+            new \Guzzle\Http\Message\Response(
+                401,
+                null,
+                json_encode(array('code'=>'Unauthorised request', 'message'=>'Client is not authorised for request'))
+            ));
+
+        $client->addSubscriber($plugin);
+
+        $mockClient->expects($this->once())
+            ->method('getHTTPClient')
+            ->will($this->returnValue($client));
+
+        // Set this manually since it won't work from the constructor since we're mocking
+        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
+
+        $personaOpts = array(
+            'persona_host' => 'http://persona',
+            'persona_oauth_route' => '/oauth/tokens',
+            'tokencache_redis_host' => 'localhost',
+            'tokencache_redis_port' => 6379,
+            'tokencache_redis_db' => 2,
+        );
+        $mockClient->setPersonaConnectValues($personaOpts);
+
+        $this->setExpectedException('\Manifesto\Exceptions\UnauthorisedAccessException', 'Client is not authorised for request');
+        $response = $mockClient->generateUrl('123', 'token', 'secret');
+    }
+
+    public function testGenerateUrlReturns404()
+    {
+        /** @var \Manifesto\Client|PHPUnit_Framework_MockObject_MockObject $mockClient */
+        $mockClient = $this->getMock(
+            '\Manifesto\Client',
+            array('getHeaders', 'getHTTPClient'),
+            array('https://example.com/manifesto')
+        );
+
+        $mockClient->expects($this->once())
+            ->method('getHeaders')
+            ->will(
+                $this->returnValue(array(
+                    array(
+                        'Content-Type'=>'application/json',
+                        'Authorization'=>'Bearer FooToken'
+                    )
+                ))
+            );
+
+        $client = new \Guzzle\Http\Client('https://example.com/manifesto');
+        $plugin = new \Guzzle\Plugin\Mock\MockPlugin();
+        $plugin->addResponse(
+            new \Guzzle\Http\Message\Response(
+                404,
+                null,
+                "File not found"
+            ));
+        $client->addSubscriber($plugin);
+
+        $mockClient->expects($this->once())
+            ->method('getHTTPClient')
+            ->will($this->returnValue($client));
+
+        // Set this manually since it won't work from the constructor since we're mocking
+        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
+
+        $personaOpts = array(
+            'persona_host' => 'http://persona',
+            'persona_oauth_route' => '/oauth/tokens',
+            'tokencache_redis_host' => 'localhost',
+            'tokencache_redis_port' => 6379,
+            'tokencache_redis_db' => 2,
+        );
+        $mockClient->setPersonaConnectValues($personaOpts);
+
+        $this->setExpectedException('\Manifesto\Exceptions\GenerateUrlException', 'Missing archive');
+        $response = $mockClient->generateUrl('1234', 'token', 'secret');
+    }
+
+    public function testGenerateUrlJobReadyForDownload()
+    {
+        /** @var \Manifesto\Client|PHPUnit_Framework_MockObject_MockObject $mockClient */
+        $mockClient = $this->getMock(
+            '\Manifesto\Client',
+            array('getHeaders', 'getHTTPClient'),
+            array('https://example.com/manifesto')
+        );
+
+        $mockClient->expects($this->once())
+            ->method('getHeaders')
+            ->will(
+                $this->returnValue(array(
+                    array(
+                        'Content-Type'=>'application/json',
+                        'Authorization'=>'Bearer FooToken'
+                    )
+                ))
+            );
+
+        $client = new \Guzzle\Http\Client('https://example.com/manifesto');
+        $plugin = new \Guzzle\Plugin\Mock\MockPlugin();
+        $plugin->addResponse(
+            new \Guzzle\Http\Message\Response(
+                200,
+                null,
+                json_encode(array('url'=>'https://path.to.s3/export.zip'))
+            ));
+        $client->addSubscriber($plugin);
+
+        $mockClient->expects($this->once())
+            ->method('getHTTPClient')
+            ->will($this->returnValue($client));
+
+        // Set this manually since it won't work from the constructor since we're mocking
+        $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
+
+        $personaOpts = array(
+            'persona_host' => 'http://persona',
+            'persona_oauth_route' => '/oauth/tokens',
+            'tokencache_redis_host' => 'localhost',
+            'tokencache_redis_port' => 6379,
+            'tokencache_redis_db' => 2,
+        );
+        $mockClient->setPersonaConnectValues($personaOpts);
+
+        $this->assertEquals('https://path.to.s3/export.zip', $mockClient->generateUrl('1234', 'token', 'secret'));
+    }
+
     public function testRequestArchiveNotAuthorisedResponse()
     {
         /** @var \Manifesto\Client|PHPUnit_Framework_MockObject_MockObject $mockClient */

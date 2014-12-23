@@ -162,7 +162,7 @@ class Client {
      * @param string $jobId
      * @param string $clientId
      * @param string $clientSecret
-     * @return mixed
+     * @return string
      * @throws \Exception|\Guzzle\Http\Exception\ClientErrorResponseException
      * @throws Exceptions\GenerateUrlException
      */
@@ -180,7 +180,7 @@ class Client {
 
             if($response->getStatusCode() == 200)
             {
-                $body = $response->getBody(true);
+                $body = json_decode($response->getBody(true));
                 return $body->url;
             } else
             {
@@ -192,6 +192,9 @@ class Client {
             $error = $this->processErrorResponseBody($response->getBody(true));
             switch($response->getStatusCode())
             {
+                case 401:
+                    throw new \Manifesto\Exceptions\UnauthorisedAccessException($error['message'], $error['error_code'], $e);
+                    break;
                 case 404:
                     throw new \Manifesto\Exceptions\GenerateUrlException('Missing archive', 404);
                     break;
