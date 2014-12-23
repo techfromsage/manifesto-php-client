@@ -180,7 +180,11 @@ class Client {
 
             if($response->getStatusCode() == 200)
             {
-                $body = json_decode($response->getBody(true));
+                $body = $response->getBody(true);
+                if(!empty($body))
+                {
+                    $body = json_decode($response->getBody(true));
+                }
                 return $body->url;
             } else
             {
