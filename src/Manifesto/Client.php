@@ -158,6 +158,50 @@ class Client {
     }
 
     /**
+     * Generate a pre signed URL via Manifesto API
+     * @param string $jobId
+     * @param string $clientId
+     * @param string $clientSecret
+     * @return mixed
+     * @throws \Exception|\Guzzle\Http\Exception\ClientErrorResponseException
+     * @throws Exceptions\GenerateUrlException
+     */
+    public function generateUrl($jobId, $clientId, $clientSecret)
+    {
+        $url = $this->manifestoBaseUrl . '/1/archives/'.$jobId.'/generateUrl';
+        try
+        {
+            $client = $this->getHTTPClient();
+            $headers = $this->getHeaders($clientId, $clientSecret);
+
+            $request = $client->post($url, $headers);
+
+            $response = $request->send();
+
+            if($response->getStatusCode() == 200)
+            {
+                $body = $response->getBody(true);
+                return $body->url;
+            } else
+            {
+                throw new \Manifesto\Exceptions\GenerateUrlException($response->getStatusCode, $response->getBody(true));
+            }
+
+        } catch(\Guzzle\Http\Exception\ClientErrorResponseException $e){
+            $response = $e->getResponse();
+            $error = $this->processErrorResponseBody($response->getBody(true));
+            switch($response->getStatusCode())
+            {
+                case 404:
+                    throw new \Manifesto\Exceptions\GenerateUrlException('Missing archive', 404);
+                    break;
+                default:
+                    throw $e;
+            }
+        }
+    }
+
+    /**
      * Setup the header array for any request to Manifesto
      * @param string $clientId
      * @param string $clientSecret
