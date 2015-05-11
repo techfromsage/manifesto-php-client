@@ -3,6 +3,29 @@ manifesto-php-client
 
 A PHP client to manage the creation and access to archives generated through Manifesto
 
+## Getting Started
+
+Install the module via composer, by adding the following to your projects ``composer.json``
+
+```javascript
+{
+    "repositories":[
+        {
+            "type": "vcs",
+            "url": "https://github.com/talis/manifesto-php-client"
+        },
+    ],
+    "require" :{
+        "talis/manifesto-client" : "0.2"
+    }
+}
+```
+then update composer:
+
+```bash
+$ php composer.phar update
+```
+
 Usage
 -----
 
@@ -68,4 +91,12 @@ catch(\Exception $e)
 
     ...
 }
+```
+
+Tests
+-----
+```
+$ npm install
+$ grunt composer:install
+$ grunt test
 ```

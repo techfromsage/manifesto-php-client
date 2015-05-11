@@ -10,7 +10,7 @@ class Client {
     protected $clientSecret;
 
     /**
-     * @var \personaclient\PersonaClient
+     * @var Talis\Persona\Client\Tokens
      */
     protected $personaClient;
 
@@ -64,22 +64,22 @@ class Client {
 
     /**
      * For mocking
-     * @return \personaclient\PersonaClient
+     * @return Talis\Persona\Client\Tokens
      */
     protected function getPersonaClient()
     {
         if(!isset($this->personaClient))
         {
-            $this->personaClient = new \personaclient\PersonaClient($this->personaConnectValues);
+            $this->personaClient = new Talis\Persona\Client\Tokens($this->personaConnectValues);
         }
         return $this->personaClient;
     }
 
     /**
      * Allows PersonaClient override, if PersonaClient has been initialized elsewhere
-     * @param \personaclient\PersonaClient $personaClient
+     * @param Talis\Persona\Client\Tokens $personaClient
      */
-    public function setPersonaClient(\personaclient\PersonaClient $personaClient)
+    public function setPersonaClient(\Talis\Persona\Client\Tokens $personaClient)
     {
         $this->personaClient = $personaClient;
     }
