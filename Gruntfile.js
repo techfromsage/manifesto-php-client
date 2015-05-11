@@ -10,7 +10,10 @@ module.exports = function(grunt) {
       options: {
         bin: 'vendor/bin/phpunit',
         configuration:'test/unit/phpunit.xml',
-        colors: true
+        colors: true,
+        stopOnError:true,
+        stopOnFailure:true,
+        failOnFailures:true
       }
     },
     composer : {
