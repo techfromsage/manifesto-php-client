@@ -25,7 +25,7 @@ class ManifestTest extends TestBase {
     {
         $m = new \Manifesto\Manifest();
         $m->setFormat(FORMAT_ZIP);
-        $this->assertEquals('fail', $m->getFormat());
+        $this->assertEquals(FORMAT_ZIP, $m->getFormat());
     }
 
     public function testValidateSetFormat()
