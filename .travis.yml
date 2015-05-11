@@ -5,6 +5,7 @@ php:
   - 5.3
 
 install:
-  - composer install
+  - npm install
+  - grunt composer:install
   
 script: grunt test
