@@ -1,5 +1,5 @@
 {
-    "name": "talis/manifesto-client",
+    "name": "talis/manifesto-php-client",
     "description": "A PHP client to manage the creation and access to archives generated through Manifesto",
     "keywords": ["php", "client library"],
     "homepage": "https://github.com/talis/manifesto-php-client",
