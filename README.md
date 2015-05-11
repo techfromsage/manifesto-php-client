@@ -96,6 +96,7 @@ catch(\Exception $e)
 Tests
 -----
 ```
+$ curl -sS https://getcomposer.org/installer | php
 $ npm install
 $ grunt composer:install
 $ grunt test
