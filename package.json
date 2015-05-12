@@ -1,0 +1,26 @@
+{
+  "name": "manifesto-php-client",
+  "version": "0.1.1",
+  "description": "Manifesto PHP Client",
+  "main": "Gruntfile.js",
+  "devDependencies": {
+    "grunt": "0.4.5",
+    "grunt-cli": "0.1.13",
+    "grunt-composer": "0.4.4",
+    "grunt-phpunit": "0.3.6",
+    "load-grunt-tasks": "3.1.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/talis/manifesto-php-client.git"
+  },
+  "author": "Ross Singer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/talis/manifesto-php-client/issues"
+  },
+  "homepage": "https://github.com/talis/manifesto-php-client"
+}

@@ -1,0 +1,14 @@
+language: php
+php:
+- 5.5
+- 5.4
+- 5.3
+install:
+- curl -sS https://getcomposer.org/installer | php
+- npm install
+- grunt composer:install
+script: grunt test
+notifications:
+  hipchat:
+    rooms:
+      secure: pZivxQHBwBqBbtZ9ZLvwzDDsY855IjbkQmafkSBdZGp7Eo3XcWZjjEUFy736A3o1W3NNoGlfRCTnu8JBn44YE1WKmIy6hFPb4SkLbs9coOJxd1hSWBd+gL0rVJMSnWcRSQqbaq3oAKBChaa2LwOUZB30il1YO6QnyhoDvgLNP8WUTq1xhJPlRUlCVyZou5PYX7EHFPjxlpzur7sjpNCDx758pnt+o+pVkdr1fNGQu8YxKADhpzyL4jqTaujJ2PiDYJQgPwFkeahOn460IEgGRnKqvilYMEcBywo3WNMu6fF1AHOD1xjjwbdkSp0WHvInq2n+Bwi+ttdNeyqVJ/vYRNAW91dH4Mfyc0J4RF0X9Lj1luvPUbeb/bzT0eFkHK8uaOXJZ89loR8iB87V6lJEifbQTkxW7MZyBDy7YFLAOiguqndciy/xNeMmvFRB8+TMy2CzkMnqHDZfZrGB5oj2R9mxmVLD7XWzqJisq2+j8ce9r1mqmCx2msb9iXILCUk49uS+Qp+D9CFMmnJ4qtNunGhSZJ3izjnAlMb+G2brsuuyxQRhiJSw7JM0VjyZ08p7oeFjOaNM/bX95Uf7nx5Wep2ahkkDeP9gNpjz7aNeVNOuf9g/9w1f6MWP6D4bzP1leRVaHwnLSYg28KWP+9GTz9X61lGxYI5CzFek2lRrJ48=

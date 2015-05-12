@@ -39,7 +39,7 @@ class ClientTest extends TestBase
     {
         $client = new TestManifestoClient('http://example.com/');
 
-        $persona = new \personaclient\PersonaClient(
+        $persona = new Talis\Persona\Client\Tokens(
             array(
                 'persona_host' => 'http://persona',
                 'persona_oauth_route' => '/oauth/tokens',
