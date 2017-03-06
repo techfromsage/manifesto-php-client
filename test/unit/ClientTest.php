@@ -17,15 +17,16 @@ class ClientTest extends TestBase
     {
         $client = new TestManifestoClient('http://example.com/');
         $this->assertEmpty($client->getPersonaConnectValues());
+
+        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
         $personaOpts = array(
             'persona_host' => 'http://persona',
-            'persona_oauth_route' => '/oauth/tokens',
-            'tokencache_redis_host' => 'localhost',
-            'tokencache_redis_port' => 6379,
-            'tokencache_redis_db' => 2,
+            'persona_oauth_route' => '/oauth/tokens/',
+            'userAgent' => 'manifesto-client/1.0',
+            'cacheBackend' =>  $cacheDriver,
         );
-        $client->setPersonaConnectValues($personaOpts);
 
+        $client->setPersonaConnectValues($personaOpts);
         $this->assertEquals($personaOpts, $client->getPersonaConnectValues());
 
         // Test that passing opts in constructor also sets property
@@ -38,19 +39,17 @@ class ClientTest extends TestBase
     public function testSetPersonaClient()
     {
         $client = new TestManifestoClient('http://example.com/');
-
+        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
         $persona = new Talis\Persona\Client\Tokens(
             array(
                 'persona_host' => 'http://persona',
-                'persona_oauth_route' => '/oauth/tokens',
-                'tokencache_redis_host' => 'localhost',
-                'tokencache_redis_port' => 6379,
-                'tokencache_redis_db' => 2,
+                'persona_oauth_route' => '/oauth/tokens/',
+                'userAgent' => 'manifesto-client/1.0',
+                'cacheBackend' =>  $cacheDriver,
             )
         );
 
         $client->setPersonaClient($persona);
-
         $this->assertEquals($persona, $client->getPersonaClient());
     }
 
@@ -91,13 +90,14 @@ class ClientTest extends TestBase
         // Set this manually since it won't work from the constructor since we're mocking
         $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
 
+        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
         $personaOpts = array(
             'persona_host' => 'http://persona',
-            'persona_oauth_route' => '/oauth/tokens',
-            'tokencache_redis_host' => 'localhost',
-            'tokencache_redis_port' => 6379,
-            'tokencache_redis_db' => 2,
+            'persona_oauth_route' => '/oauth/tokens/',
+            'userAgent' => 'manifesto-client/1.0',
+            'cacheBackend' =>  $cacheDriver,
         );
+
         $mockClient->setPersonaConnectValues($personaOpts);
 
         $m = new \Manifesto\Manifest();
@@ -159,13 +159,14 @@ class ClientTest extends TestBase
             ->method('getHTTPClient')
             ->will($this->returnValue($client));
 
+        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
         $personaOpts = array(
             'persona_host' => 'http://persona',
-            'persona_oauth_route' => '/oauth/tokens',
-            'tokencache_redis_host' => 'localhost',
-            'tokencache_redis_port' => 6379,
-            'tokencache_redis_db' => 2,
+            'persona_oauth_route' => '/oauth/tokens/',
+            'userAgent' => 'manifesto-client/1.0',
+            'cacheBackend' =>  $cacheDriver,
         );
+
         $mockClient->setPersonaConnectValues($personaOpts);
 
         $this->setExpectedException('\Manifesto\Exceptions\UnauthorisedAccessException', 'Client is not authorised for request');
@@ -206,13 +207,14 @@ class ClientTest extends TestBase
             ->method('getHTTPClient')
             ->will($this->returnValue($client));
 
+        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
         $personaOpts = array(
             'persona_host' => 'http://persona',
-            'persona_oauth_route' => '/oauth/tokens',
-            'tokencache_redis_host' => 'localhost',
-            'tokencache_redis_port' => 6379,
-            'tokencache_redis_db' => 2,
+            'persona_oauth_route' => '/oauth/tokens/',
+            'userAgent' => 'manifesto-client/1.0',
+            'cacheBackend' =>  $cacheDriver,
         );
+
         $mockClient->setPersonaConnectValues($personaOpts);
 
         $this->setExpectedException('\Manifesto\Exceptions\GenerateUrlException', 'Missing archive');
@@ -253,13 +255,14 @@ class ClientTest extends TestBase
             ->method('getHTTPClient')
             ->will($this->returnValue($client));
 
+        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
         $personaOpts = array(
             'persona_host' => 'http://persona',
-            'persona_oauth_route' => '/oauth/tokens',
-            'tokencache_redis_host' => 'localhost',
-            'tokencache_redis_port' => 6379,
-            'tokencache_redis_db' => 2,
+            'persona_oauth_route' => '/oauth/tokens/',
+            'userAgent' => 'manifesto-client/1.0',
+            'cacheBackend' =>  $cacheDriver,
         );
+
         $mockClient->setPersonaConnectValues($personaOpts);
 
         $this->assertEquals('https://path.to.s3/export.zip', $mockClient->generateUrl('1234', 'token', 'secret'));
@@ -302,13 +305,14 @@ class ClientTest extends TestBase
         // Set this manually since it won't work from the constructor since we're mocking
         $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
 
+        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
         $personaOpts = array(
             'persona_host' => 'http://persona',
-            'persona_oauth_route' => '/oauth/tokens',
-            'tokencache_redis_host' => 'localhost',
-            'tokencache_redis_port' => 6379,
-            'tokencache_redis_db' => 2,
+            'persona_oauth_route' => '/oauth/tokens/',
+            'userAgent' => 'manifesto-client/1.0',
+            'cacheBackend' =>  $cacheDriver,
         );
+
         $mockClient->setPersonaConnectValues($personaOpts);
 
         $m = new \Manifesto\Manifest();
@@ -367,13 +371,14 @@ class ClientTest extends TestBase
         // Set this manually since it won't work from the constructor since we're mocking
         $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
 
+        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
         $personaOpts = array(
             'persona_host' => 'http://persona',
-            'persona_oauth_route' => '/oauth/tokens',
-            'tokencache_redis_host' => 'localhost',
-            'tokencache_redis_port' => 6379,
-            'tokencache_redis_db' => 2,
+            'persona_oauth_route' => '/oauth/tokens/',
+            'userAgent' => 'manifesto-client/1.0',
+            'cacheBackend' =>  $cacheDriver,
         );
+
         $mockClient->setPersonaConnectValues($personaOpts);
 
         $m = new \Manifesto\Manifest();
@@ -432,13 +437,14 @@ class ClientTest extends TestBase
         // Set this manually since it won't work from the constructor since we're mocking
         $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
 
+        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
         $personaOpts = array(
             'persona_host' => 'http://persona',
-            'persona_oauth_route' => '/oauth/tokens',
-            'tokencache_redis_host' => 'localhost',
-            'tokencache_redis_port' => 6379,
-            'tokencache_redis_db' => 2,
+            'persona_oauth_route' => '/oauth/tokens/',
+            'userAgent' => 'manifesto-client/1.0',
+            'cacheBackend' =>  $cacheDriver,
         );
+
         $mockClient->setPersonaConnectValues($personaOpts);
 
         $m = new \Manifesto\Manifest();
@@ -497,13 +503,14 @@ class ClientTest extends TestBase
         // Set this manually since it won't work from the constructor since we're mocking
         $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
 
+        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
         $personaOpts = array(
             'persona_host' => 'http://persona',
-            'persona_oauth_route' => '/oauth/tokens',
-            'tokencache_redis_host' => 'localhost',
-            'tokencache_redis_port' => 6379,
-            'tokencache_redis_db' => 2,
+            'persona_oauth_route' => '/oauth/tokens/',
+            'userAgent' => 'manifesto-client/1.0',
+            'cacheBackend' =>  $cacheDriver,
         );
+
         $mockClient->setPersonaConnectValues($personaOpts);
 
         $m = new \Manifesto\Manifest();
@@ -562,13 +569,14 @@ class ClientTest extends TestBase
         // Set this manually since it won't work from the constructor since we're mocking
         $mockClient->setManifestoBaseUrl('https://example.com/manifesto');
 
+        $cacheDriver = new \Doctrine\Common\Cache\ArrayCache();
         $personaOpts = array(
             'persona_host' => 'http://persona',
-            'persona_oauth_route' => '/oauth/tokens',
-            'tokencache_redis_host' => 'localhost',
-            'tokencache_redis_port' => 6379,
-            'tokencache_redis_db' => 2,
+            'persona_oauth_route' => '/oauth/tokens/',
+            'userAgent' => 'manifesto-client/1.0',
+            'cacheBackend' =>  $cacheDriver,
         );
+
         $mockClient->setPersonaConnectValues($personaOpts);
 
         $m = new \Manifesto\Manifest();
